@@ -21,6 +21,7 @@ import TextAlign from '@tiptap/extension-text-align'
 
 
 import { useEditorStore } from '@/lib/use-editor-store';
+import { FontSizeExtensions } from "@/extensions/font-size";
 
 export const Editor = () => {
     const {setEditor} = useEditorStore();
@@ -58,6 +59,7 @@ export const Editor = () => {
         extensions: [StarterKit,
             Image,
             Color,
+            FontSizeExtensions,
             Highlight.configure({
                 multicolor: true,
             }),

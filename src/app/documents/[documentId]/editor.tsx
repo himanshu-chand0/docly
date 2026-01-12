@@ -22,6 +22,7 @@ import TextAlign from '@tiptap/extension-text-align'
 
 import { useEditorStore } from '@/lib/use-editor-store';
 import { FontSizeExtensions } from "@/extensions/font-size";
+import { LineHeightExtension } from '@/extensions/line-height';
 
 export const Editor = () => {
     const {setEditor} = useEditorStore();
@@ -59,6 +60,7 @@ export const Editor = () => {
         extensions: [StarterKit,
             Image,
             Color,
+            LineHeightExtension,
             FontSizeExtensions,
             Highlight.configure({
                 multicolor: true,

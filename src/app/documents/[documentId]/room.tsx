@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 export function Room({ children }: { children: ReactNode }) {
     const params = useParams();
   return (
-    <LiveblocksProvider publicApiKey={"pk_dev_y49bIZhUV1S1E0zyyEgMbFOxJ-ObK3VCyERlDdp6P5aY58Vnj6yrxy4BcjsbWai2"}>
+    <LiveblocksProvider publicApiKey={"pk_dev_saOLVRNRZTTYuFovZqsM87KocKx8I_Zwr2WSd2RoYabM3ePCvBOWp2f9OUeFySE9"}>
       <RoomProvider id={params.documentId as string}>
         <ClientSideSuspense fallback={<div>Loading…</div>}>
           {children}

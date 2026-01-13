@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+// 1. Corrected Import: Use next/navigation for App Router
+import { useRouter } from "next/navigation"; 
+
 import { DocumentInput } from "./document-input";
 import { Avatars } from "./avatars";
+import { RenameDialog } from "@/components/rename-dialog";
+import { RemoveDialog } from "@/components/remove-dialog";
 
 import {
   Menubar,
@@ -17,14 +22,57 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { FileIcon, FileJson, FileJsonIcon, FileTextIcon, GlobeIcon, FilePlusIcon, FilePenIcon, TrashIcon, PrinterIcon, Undo2Icon, Redo2Icon, TextIcon, BoldIcon, ItalicIcon, UnderlineIcon, Strikethrough, RemoveFormatting, RemoveFormattingIcon} from "lucide-react";
+import { 
+  FileIcon, 
+  FileJsonIcon, 
+  FileTextIcon, 
+  GlobeIcon, 
+  FilePlusIcon, 
+  FilePenIcon, 
+  TrashIcon, 
+  PrinterIcon, 
+  Undo2Icon, 
+  Redo2Icon, 
+  TextIcon, 
+  BoldIcon, 
+  ItalicIcon, 
+  UnderlineIcon, 
+  Strikethrough, 
+  RemoveFormattingIcon
+} from "lucide-react";
 import { BsFilePdf } from "react-icons/bs";
 import { useEditorStore } from "@/lib/use-editor-store";
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
 import { Inbox } from "./inbox";
+import { Doc } from "../../../../convex/_generated/dataModel";
+import { toast } from "sonner";
+import { api } from "../../../../convex/_generated/api";
+import { useMutation } from "convex/react";
 
-export const Navbar = () => {
+interface NavbarProps {
+  data: Doc<"documents">;
+}
+
+export const Navbar = ({ data }: NavbarProps) => {
   const { editor } = useEditorStore();
+  
+  // 2. Initialize the hook inside the component
+  const router = useRouter(); 
+
+  const mutation = useMutation(api.documents.create);
+
+  const onNewDocument = () => {
+    mutation({
+      title: "Untitled Document",
+      initialContent: "",
+    })
+      .then((id) => {
+        toast.success("Document created");
+        // 3. Successfully push using the hook instance
+        router.push(`/documents/${id}`);
+      })
+      .catch(() => toast.error("Something went wrong"));
+  };
 
   const insertTable = ({ rows, cols }: { rows: number, cols: number}) =>{
     editor
@@ -38,40 +86,37 @@ export const Navbar = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download =filename;
+    a.download = filename;
     a.click();
   };
 
   const onSaveJSON = () => {
     if (!editor) return;
-
     const content = editor.getJSON();
     const blob = new Blob([JSON.stringify(content)], {
       type: "application/json",
     });
-    onDownload(blob, `document.json`) //TODO: Use doc name pachi
+    onDownload(blob, `${data.title}.json`)
   };
+
   const onSaveHTML = () => {
     if (!editor) return;
-
     const content = editor.getHTML();
     const blob = new Blob([content], {
       type: "text/html",
     });
-    onDownload(blob, `document.html`) //TODO: Use doc name pachi
+    onDownload(blob, `${data.title}.html`)
   }; 
-   const onSaveText = () => {
-    if (!editor) return;
 
+  const onSaveText = () => {
+    if (!editor) return;
     const content = editor.getText();
     const blob = new Blob([content], {
       type: "text/plain",
     });
-    onDownload(blob, `document.txt`) //TODO: Use doc name pachi
+    onDownload(blob, `${data.title}.txt`)
   };
   
-  
-
   return (
     <nav className="flex items-center justify-between">
       <div className="flex gap-2 items-center">
@@ -79,7 +124,7 @@ export const Navbar = () => {
           <Image src="/logo.svg" alt="logo" width={72} height={36} />
         </Link>
         <div className="flex flex-col">
-          <DocumentInput />
+          <DocumentInput title={data.title} id={data._id} />
             <div className="flex">
               <Menubar className="border-none bg-transparent shadow-none h-auto p-0">
                 <MenubarMenu>
@@ -89,7 +134,7 @@ export const Navbar = () => {
                   <MenubarContent className="print:hidden">
                     <MenubarSub>
                       <MenubarSubTrigger>
-                        <FileIcon />
+                        <FileIcon className="size-4 mr-2" />
                         Save
                       </MenubarSubTrigger>
                         <MenubarSubContent>
@@ -111,19 +156,29 @@ export const Navbar = () => {
                           </MenubarItem>
                         </MenubarSubContent>
                     </MenubarSub>
-                    <MenubarItem>
+                    <MenubarItem onClick={onNewDocument }>
                       <FilePlusIcon className="size-4 mr-2"/>
                       New Document
                     </MenubarItem>
                     <MenubarSeparator />
-                    <MenubarItem>
-                      <FilePenIcon className="size-4 mr-2"/>
+                   <RenameDialog documentId={data._id} initialTitle={data.title}>
+                    <MenubarItem
+                      onClick={(e) => e.stopPropagation()}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <FilePenIcon className="mr-2 size-4" />
                       Rename
                     </MenubarItem>
-                    <MenubarItem>
-                      <TrashIcon className="size-4 mr-2"/>
+                  </RenameDialog>
+                    <RemoveDialog documentId={data._id}>
+                    <MenubarItem
+                      onClick={(e) => e.stopPropagation()}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <TrashIcon className="mr-2 size-4" />
                       Remove
                     </MenubarItem>
+                  </RemoveDialog>
                     <MenubarSeparator />
                     <MenubarItem  onClick={() => window.print()}>
                       <PrinterIcon className="size-4 mr-2"/>
@@ -131,6 +186,7 @@ export const Navbar = () => {
                     </MenubarItem>
                   </MenubarContent>
                 </MenubarMenu>
+                
                 <MenubarMenu>
                   <MenubarTrigger className="text-sm font-normal py-0.5 px-[7px] rounded-sm hover:bg-muted h-auto">
                     Edit
@@ -146,6 +202,7 @@ export const Navbar = () => {
                     </MenubarItem>
                   </MenubarContent>
                 </MenubarMenu>
+
                 <MenubarMenu>
                   <MenubarTrigger className="text-sm font-normal py-0.5 px-[7px] rounded-sm hover:bg-muted h-auto">
                     Insert
@@ -170,6 +227,7 @@ export const Navbar = () => {
                     </MenubarSub>
                   </MenubarContent>
                 </MenubarMenu>
+
                 <MenubarMenu>
                   <MenubarTrigger className="text-sm font-normal py-0.5 px-[7px] rounded-sm hover:bg-muted h-auto">
                     Format
@@ -183,7 +241,7 @@ export const Navbar = () => {
                       <MenubarSubContent>
                       <MenubarItem onClick={() => editor?.chain().focus().toggleBold().run()}>
                           <BoldIcon className="size-4 mr-2" />
-                          Bold <MenubarShortcut>⌘I</MenubarShortcut>
+                          Bold <MenubarShortcut>⌘B</MenubarShortcut>
                         </MenubarItem>                        
                         <MenubarItem onClick={() => editor?.chain().focus().toggleItalic().run()}>
                           <ItalicIcon className="size-4 mr-2" />
@@ -191,11 +249,11 @@ export const Navbar = () => {
                         </MenubarItem>                        
                         <MenubarItem onClick={() => editor?.chain().focus().toggleUnderline().run()}>
                           <UnderlineIcon className="size-4 mr-2" />
-                          Undeline <MenubarShortcut>⌘U</MenubarShortcut>
+                          Underline <MenubarShortcut>⌘U</MenubarShortcut>
                         </MenubarItem>
                         <MenubarItem onClick={() => editor?.chain().focus().toggleStrike().run()}>
                           <Strikethrough className="size-4 mr-2" />
-                          <span>Strikethrough&nbsp;&nbsp;</span> <MenubarShortcut>⌘S</MenubarShortcut>
+                          <span>Strikethrough</span> <MenubarShortcut>⌘S</MenubarShortcut>
                         </MenubarItem>
                       </MenubarSubContent>
                     </MenubarSub>
@@ -212,14 +270,14 @@ export const Navbar = () => {
       <div className="flex gap-3 items-center pl-6">
         <Avatars />
         <Inbox />
-                <OrganizationSwitcher 
-                  afterCreateOrganizationUrl="/"
-                  afterLeaveOrganizationUrl="/"
-                  afterSelectOrganizationUrl="/"
-                  afterSelectPersonalUrl="/"
-                />
-                <UserButton />
-            </div>
+        <OrganizationSwitcher 
+          afterCreateOrganizationUrl="/"
+          afterLeaveOrganizationUrl="/"
+          afterSelectOrganizationUrl="/"
+          afterSelectPersonalUrl="/"
+        />
+        <UserButton />
+      </div>
     </nav>
   );
 };

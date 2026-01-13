@@ -18,6 +18,8 @@ import {
 
 import { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { ro } from "date-fns/locale";
 
 interface RemoveDialogProps {
   documentId: Id<"documents">;
@@ -25,6 +27,7 @@ interface RemoveDialogProps {
 }
 
 export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
+  const router = useRouter();
   const remove = useMutation(api.documents.removeById);
   const [isRemoving, setIsRemoving] = useState(false);
 

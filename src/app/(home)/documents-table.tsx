@@ -28,7 +28,7 @@ export const DocumentsTable = ({ documents, loadMore, status }: DocumentsTablePr
       ) : (
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent border-none">
+            <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>&nbsp;</TableHead>
               <TableHead className="hidden md:table-cell">Shared</TableHead>

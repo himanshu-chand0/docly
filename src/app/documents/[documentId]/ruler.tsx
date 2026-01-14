@@ -2,19 +2,21 @@ import { useRef, useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
 import { useStorage, useMutation } from "@liveblocks/react";
 
+import { RIGHT_MARGIN_DEFAULT, LEFT_MARGIN_DEFAULT } from "@/constants/margins";
+
 const markers = Array.from({ length: 83 }, (_, i) => i);
 
 export const Ruler = () => {
-  const leftMargin = useStorage((root) => root.leftMargin) ?? 56;
+  const leftMargin = useStorage((root) => root.leftMargin) ?? LEFT_MARGIN_DEFAULT;
   const setLeftMargin = useMutation(({ storage }, position: number) => {
     storage.set("leftMargin", position);
   }, []);
 
-  const rightMargin = useStorage((root) => root.rightMargin) ?? 56;
+  const rightMargin = useStorage((root) => root.rightMargin) ?? RIGHT_MARGIN_DEFAULT;
   const setRightMargin = useMutation(({ storage }, position: number) => {
     storage.set("rightMargin", position);
   }, []);
-  
+
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
   const rulerRef = useRef<HTMLDivElement>(null);
@@ -57,14 +59,6 @@ export const Ruler = () => {
     setIsDraggingRight(false);
   };
 
-  const handleLeftDoubleClick = () => {
-    setLeftMargin(56);
-  }
-
-  const handleRightDoubleClick = () => {
-    setRightMargin(56);
-  }
-
   return (
     <div
       ref={rulerRef}
@@ -79,14 +73,14 @@ export const Ruler = () => {
           isLeft={true}
           isDragging={isDraggingLeft}
           onMouseDown={handleLeftMouseDown}
-          onDoubleClick={handleLeftDoubleClick}
+          onDoubleClick={handleLeftMouseDown}
         />
         <Marker
           position={rightMargin}
           isLeft={false}
           isDragging={isDraggingRight}
           onMouseDown={handleRightMouseDown}
-          onDoubleClick={handleRightDoubleClick}
+          onDoubleClick={handleRightMouseDown}
         />
         <div className="absolute inset-x-0 bottom-0 h-full">
           <div className="relative h-full w-[816px]">
@@ -137,7 +131,7 @@ const Marker = ({ position, isLeft, isDragging, onMouseDown, onDoubleClick }: Ma
     >
       <FaCaretDown className="absolute left-1/2 top-0 h-full fill-blue-500 transform -translate-x-1/2" />
       <div
-        className="absolute left-1/2 top-4 transform -translate-x-1/2"
+        className="absolute left-1/2 top-4 transform -translate-x-1/2 "
         style={{
           height: "100vh",
           width: "1px",

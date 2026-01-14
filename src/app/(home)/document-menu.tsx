@@ -51,4 +51,3 @@ export const DocumentMenu = ({ documentId, title, onNewTab }: DocumentMenuProps)
     </DropdownMenu>
   );
 };
-

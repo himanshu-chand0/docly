@@ -1,8 +1,8 @@
 export default {
   providers: [
     {
-      domain: "https://your-clerk-issuer-url.clerk.accounts.dev",
-      applicationID: "convex",
-    },
-  ],
-};
+      domain: "https://current-raven-81.clerk.accounts.dev",
+      applicationID: "convex"
+    }
+  ]
+}

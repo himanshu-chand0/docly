@@ -166,15 +166,7 @@ export const Navbar = ({ data }: NavbarProps) => {
                       Rename
                     </MenubarItem>
                   </RenameDialog>
-                  <RemoveDialog documentId={data._id}>
-                    <MenubarItem
-                      onClick={(e) => e.stopPropagation()}
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <TrashIcon className="mr-2 size-4" />
-                      Remove
-                    </MenubarItem>
-                  </RemoveDialog>
+    
                   <MenubarSeparator />
                   <MenubarItem onClick={() => window.print()}>
                     <PrinterIcon className="mr-2 size-4" />
